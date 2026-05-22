@@ -79,7 +79,7 @@ def verify_scraped_against_backend(scraped_titles: list[str], backend_titles: li
                   f"\n     API: '{backend_safe[:45]}...'"
                   f"\n     [Similarity: {match['similarity']:.2f} | Word Overlap: {match['word_overlap']} | Overlapping: {match['overlapping_words']}]\n")
         print("=" * 60 + "\n")
-        return True
+        return len(matches)
     
     # 3. Handle mismatch case
     print("\nWARNING: No direct overlapping video titles found between UI search results and API catalog.")
@@ -89,7 +89,7 @@ def verify_scraped_against_backend(scraped_titles: list[str], backend_titles: li
               "are static, zero overlaps are normal and expected in mock mode.")
         print("Backend verification logic verified successfully (Mock fallback bypass active).")
         print("=" * 60 + "\n")
-        return True
+        return 0
     else:
         # Real API: fail the test if there is absolutely no overlap, as they should share trending videos
         msg = ("TEST FAILED: Backend verification failed. Zero overlapping video titles found between "

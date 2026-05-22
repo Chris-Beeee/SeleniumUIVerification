@@ -60,3 +60,32 @@ class TMDBNowPlayingPage(BasePage):
         # Extract the text and filter out any empty strings
         titles = [el.text.strip() for el in elements if el.text.strip()]
         return titles
+
+class TMDBGenericMoviesPage(BasePage):
+    # Matches both the old TMDB UI (h2 a) and the new Tailwind UI (h2.whitespace-normal span)
+    MOVIE_TITLES = (By.CSS_SELECTOR, "h2.whitespace-normal span, h2 a")
+    ACCEPT_COOKIES_BTN = (By.CSS_SELECTOR, "button#onetrust-accept-btn-handler")
+
+    def __init__(self, driver, url):
+        # Override init to accept a dynamic URL
+        super().__init__(driver)
+        self.url = url
+
+    def load(self):
+        self.driver.get(self.url)
+
+    def accept_cookies(self):
+        try:
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+            WebDriverWait(self.driver, 4).until(
+                EC.element_to_be_clickable(self.ACCEPT_COOKIES_BTN)
+            ).click()
+        except Exception:
+            pass
+
+    def get_movie_titles(self):
+        self.wait_for_presence(*self.MOVIE_TITLES)
+        elements = self.driver.find_elements(*self.MOVIE_TITLES)
+        titles = [el.text.strip() for el in elements if el.text.strip()]
+        return titles
