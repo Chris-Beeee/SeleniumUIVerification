@@ -1,0 +1,19 @@
+.env
+.venv/
+.idea/
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Hidden tests
+tests/api_test.py
+tests/conftest.py
+tests/test_alerts.py
+tests/test_dropdown.py
+tests/test_dynamic_loading.py
+tests/test_giantbomb.py
+tests/test_hover.py
+tests/test_localhost.py
+tests/test_localhost_xfail.py
+tests/test_login.py
+tests/test_ui_examples.py
