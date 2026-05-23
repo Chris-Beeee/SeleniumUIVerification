@@ -28,7 +28,8 @@ To make these tests robust, they include a backend verification layer that valid
 ### Key Architectural Features:
 1. **Dynamic Real API / Mock Fallback:**
    * **TMDB Client (`utils/tmdb_api.py`):** Queries the official TMDB API if a `TMDB_API_READ_ACCESS_TOKEN` is present in `.env`. 
-   * If credentials are not set, it can fall back to pre-seeded mock datasets, allowing the tests to run offline or in CI environments without false failures.
+   * If credentials are not set (or if you use the `--mock-api` flag), it falls back to pre-seeded mock datasets, allowing the tests to run offline or in CI environments without false failures.
+   * **Regional UI Accuracy:** When real credentials are provided, the category tests will explicitly log in to TMDB before scraping. This ensures the UI results apply the correct regional account settings (e.g., UK region) to perfectly match the API localization.
 
 2. **Intelligent Matching Engine (`utils/backend_verifier.py`):**
    * **Fuzzy Similarity Math:** Calculates structural sequence similarity to successfully match slight layout or naming variations between the UI and API.
@@ -73,13 +74,23 @@ TMDB_API_READ_ACCESS_TOKEN=your_read_access_token
 ```
 
 **5. Run the tests**
+
+**Run normally (uses your credentials to log in and test real API data):**
 ```powershell
-# Run all TMDB POM tests with verbose output
+pytest -v -s
+```
+
+**Run in Mock/Offline Mode (ignores credentials, skips login tests, uses offline mock data):**
+```powershell
+pytest -v -s --mock-api
+```
+
+**Run only the POM tests:**
+```powershell
 pytest tests/test_tmdb_*_pom.py -v -s
+```
 
-# Run the linear login test
-pytest tests/test_tmdb_login.py -v -s
-
-# Run everything and generate an HTML report
+**Run everything and generate an HTML report:**
+```powershell
 pytest --html=report.html
 ```

@@ -2,7 +2,8 @@ import pytest
 from selenium import webdriver
 from dotenv import load_dotenv
 
-from pages.tmdb_pages import TMDBGenericMoviesPage
+import os
+from pages.tmdb_pages import TMDBGenericMoviesPage, TMDBHomePage, TMDBLoginPage
 from utils.tmdb_api import get_movies_from_api
 from utils.backend_verifier import verify_scraped_against_backend
 
@@ -14,11 +15,12 @@ load_dotenv()
     ("Upcoming",    "https://www.themoviedb.org/movie/upcoming",    "upcoming"),
     ("Top Rated",   "https://www.themoviedb.org/movie/top-rated",   "top_rated")
 ])
-def test_tmdb_movies_categories_verification(category, ui_url, api_endpoint, record_property):
+def test_tmdb_movies_categories_verification(category, ui_url, api_endpoint, record_property, is_mock_mode):
     # 1. Fetch backend expected data via API
     try:
-        backend_titles = get_movies_from_api(api_endpoint)
-        api_msg = f"[API] Successfully retrieved {len(backend_titles)} '{category}' movies from the backend."
+        backend_titles, is_mock = get_movies_from_api(api_endpoint, is_mock=is_mock_mode)
+        mode_str = "MOCK" if is_mock else "API"
+        api_msg = f"[{mode_str}] Successfully retrieved {len(backend_titles)} '{category}' movies from the backend."
         print(f"\n{api_msg}")
         record_property("api_msg", api_msg)
     except Exception as e:
@@ -32,6 +34,18 @@ def test_tmdb_movies_categories_verification(category, ui_url, api_endpoint, rec
         driver = webdriver.Chrome()
         try:
             driver.maximize_window()
+            
+            # Conditionally log in to ensure region-specific API matching is accurate
+            if not is_mock_mode and os.getenv("TMDB_USERNAME") and os.getenv("TMDB_PASSWORD"):
+                home_page = TMDBHomePage(driver)
+                home_page.load()
+                home_page.click_login()
+                
+                login_page = TMDBLoginPage(driver)
+                login_page.login(os.getenv("TMDB_USERNAME"), os.getenv("TMDB_PASSWORD"))
+                if not login_page.is_login_successful():
+                    pytest.fail("Failed to login during UI setup for categories test.")
+
             # We use the generic page object which accepts any category URL
             movies_page = TMDBGenericMoviesPage(driver, ui_url)
             movies_page.load()
@@ -59,7 +73,7 @@ def test_tmdb_movies_categories_verification(category, ui_url, api_endpoint, rec
 
     # 3. Verify that the UI titles match the Backend titles
     try:
-        match_count = verify_scraped_against_backend(scraped_titles, backend_titles, is_mock=False, threshold=0.6)
+        match_count = verify_scraped_against_backend(scraped_titles, backend_titles, is_mock=is_mock, threshold=0.6)
         match_msg = f"[VERIFIER] Successfully matched {match_count} movies between UI and API."
         print(match_msg)
         record_property("match_msg", match_msg)

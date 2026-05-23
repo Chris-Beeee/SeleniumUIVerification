@@ -11,7 +11,9 @@ from selenium.common.exceptions import TimeoutException
 # Load the environment variables from the .env file
 load_dotenv()
 
-def test_tmdb_login():
+def test_tmdb_login(is_mock_mode):
+    if is_mock_mode:
+        pytest.skip("Skipping login tests because --mock-api flag is active.")
     # Load credentials from environment
     username = os.getenv("TMDB_USERNAME")
     password = os.getenv("TMDB_PASSWORD")

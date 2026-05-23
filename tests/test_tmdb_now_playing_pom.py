@@ -2,17 +2,19 @@ import pytest
 from selenium import webdriver
 from dotenv import load_dotenv
 
-from pages.tmdb_pages import TMDBNowPlayingPage
+import os
+from pages.tmdb_pages import TMDBNowPlayingPage, TMDBHomePage, TMDBLoginPage
 from utils.tmdb_api import get_now_playing_movies
 from utils.backend_verifier import verify_scraped_against_backend
 
 load_dotenv()
 
-def test_tmdb_now_playing_verification():
+def test_tmdb_now_playing_verification(is_mock_mode):
     # 1. Fetch backend expected data via API
     try:
-        backend_titles = get_now_playing_movies()
-        print(f"\n[API] Successfully retrieved {len(backend_titles)} 'Now Playing' movies from the backend.")
+        backend_titles, is_mock = get_now_playing_movies(is_mock=is_mock_mode)
+        mode_str = "MOCK" if is_mock else "API"
+        print(f"\n[{mode_str}] Successfully retrieved {len(backend_titles)} 'Now Playing' movies from the backend.")
     except Exception as e:
         pytest.fail(f"TEST FAILED: Could not fetch from API. Error: {str(e)}", pytrace=False)
 
@@ -24,6 +26,18 @@ def test_tmdb_now_playing_verification():
         driver = webdriver.Chrome()
         try:
             driver.maximize_window()
+            
+            # Conditionally log in to ensure region-specific API matching is accurate
+            if not is_mock_mode and os.getenv("TMDB_USERNAME") and os.getenv("TMDB_PASSWORD"):
+                home_page = TMDBHomePage(driver)
+                home_page.load()
+                home_page.click_login()
+                
+                login_page = TMDBLoginPage(driver)
+                login_page.login(os.getenv("TMDB_USERNAME"), os.getenv("TMDB_PASSWORD"))
+                if not login_page.is_login_successful():
+                    pytest.fail("Failed to login during UI setup for now playing test.")
+
             now_playing_page = TMDBNowPlayingPage(driver)
             now_playing_page.load()
             now_playing_page.accept_cookies()
@@ -51,6 +65,6 @@ def test_tmdb_now_playing_verification():
     # We use the existing verification utility which allows for fuzzy matching 
     # to account for slight UI formatting differences.
     try:
-        verify_scraped_against_backend(scraped_titles, backend_titles, is_mock=False, threshold=0.6)
+        verify_scraped_against_backend(scraped_titles, backend_titles, is_mock=is_mock, threshold=0.6)
     except AssertionError as e:
         pytest.fail(str(e), pytrace=False)

@@ -33,6 +33,15 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                     terminalreporter.write_line(value)
 
 import pytest
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--mock-api", action="store_true", default=False, help="Run tests with mock API data"
+    )
+
+@pytest.fixture(scope="session")
+def is_mock_mode(request):
+    return request.config.getoption("--mock-api")
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     """

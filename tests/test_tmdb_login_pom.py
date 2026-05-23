@@ -24,7 +24,9 @@ def verify_api_access(token):
         print(f"\nAPI Login failed! Status Code: {response.status_code}, Response: {response.text}")
         return False
 
-def test_tmdb_login_pom():
+def test_tmdb_login_pom(is_mock_mode):
+    if is_mock_mode:
+        pytest.skip("Skipping login tests because --mock-api flag is active.")
     # Load credentials from environment
     username = os.getenv("TMDB_USERNAME")
     password = os.getenv("TMDB_PASSWORD")
