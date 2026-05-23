@@ -4,11 +4,11 @@ This repository serves as a portfolio piece demonstrating automated web UI testi
 
 The primary goal of this repository is to use the Page Object Model examples but with a live API verifying the results against the data fro the front end of the site, as opposed to the examples given in my portfolio which only verify the results against a mock backend. 
 
-[This site](https://www.themoviedb.org) was chosen because it has a free API that can be used for non-commercial projects, unlike more well known sites like IMDB, which only licences its API commercially. 
+[themoviedb.org](https://www.themoviedb.org) was chosen because it has a free API that can be used for non-commercial projects, unlike more well known sites like IMDB, which only licences its API commercially. 
 
 These tests have been designed to work whether you have 1) a login with the site or 2) have applied for and been given an API key or not. Though obviously the tests are primarily designed for a user who has both. 
-[Login or create an account](https://www.themoviedb.org/login)
-[API details (account required)](https://www.themoviedb.org/login)
+* [Login or create an account](https://www.themoviedb.org/login)
+* [API details (account required)](https://www.themoviedb.org/login)
 
 ---
 
