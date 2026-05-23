@@ -2,15 +2,13 @@
 
 This repository serves as a portfolio piece demonstrating automated web UI testing using **Python**, **Selenium WebDriver**, and **Pytest**. 
 
-The primary goal of this repository is to demonstrate an end-to-end automation stack utilizing the **Page Object Model (POM)** for robust, maintainable tests, specifically targeting **The Movie Database (TMDB)**.
+The primary goal of this repository is to use the Page Object Model examples but with a live API verifying the results against the data fro the front end of the site, as opposed to the examples given in my portfolio which only verify the results against a mock backend. 
 
----
+[This site](https://www.themoviedb.org) was chosen because it has a free API that can be used for non-commercial projects, unlike more well known sites like IMDB, which only licences its API commercially. 
 
-## Architecture Showcase
-
-The tests in this repository use the **Page Object Model**. This design pattern separates the UI element locators (CSS/XPath) and page interaction methods from the actual test logic. This makes the codebase significantly easier to read, maintain, and update when the UI changes.
-
-There is also a standard, top-to-bottom procedural script (`test_tmdb_login.py`) for comparison, demonstrating why POM is preferred for complex flows.
+These tests have been designed to work whether you have 1) a login with the site or 2) have applied for and been given an API key or not. Though obviously the tests are primarily designed for a user who has both. 
+[Login or create an account](https://www.themoviedb.org/login)
+[API details (account required)](https://www.themoviedb.org/login)
 
 ---
 
