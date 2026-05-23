@@ -8,7 +8,7 @@ The primary goal of this repository is to use the Page Object Model examples but
 
 These tests have been designed to work whether you have 1) a login with the site or 2) have applied for and been given an API key or not. Though obviously the tests are primarily designed for a user who has both. 
 * [Login or create an account](https://www.themoviedb.org/login)
-* [API details (account required)](https://www.themoviedb.org/login)
+* [API details (account required)](https://www.themoviedb.org/settings/api)
 
 ---
 
