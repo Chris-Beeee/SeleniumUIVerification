@@ -18,6 +18,8 @@ This suite runs automated UI interactions against **The Movie Database (TMDB)** 
 
 * **Category Verification**: Scrapes movie titles across different categories (Now Playing, Popular, Upcoming, Top Rated) and dynamically compares them to TMDB's backend API to ensure the front-end displays correct data.
 * **Authentication**: Tests the login functionality. First, it authenticates the API token to ensure backend access, then drives Selenium to log into the UI.
+* **Basic Movie Discovery (`tests/test_tmdb_discover_pom.py`)**: Tests movie filtering utilizing primary filters: **Genre**, **Keyword** (with autocomplete selection), and **Date Range**, verifying UI results against the production API.
+* **Advanced Multi-Filter Discovery (`tests/test_tmdb_discover_complex.py`)**: Tests highly complex, dynamic queries utilizing **all** advanced filters: **Certification**, **User Score**, **Minimum User Votes**, **Language**, **Runtime**, **Availabilities**, and **Show me**. Omitted filters are dynamically bypassed. Kendo UI sliders and dropdowns are driven robustly via programmatically injected jQuery scripts.
 
 ## Backend Verification Layer
 
@@ -83,12 +85,17 @@ pytest -v -s
 pytest -v -s --mock-api
 ```
 
-**Run only the POM tests:**
+**Run only the POM category and basic discover tests:**
 ```powershell
 pytest tests/test_tmdb_*_pom.py -v -s
 ```
 
-**Run everything and generate an HTML report:**
+**Run the advanced multi-filter discover tests:**
+```powershell
+pytest tests/test_tmdb_discover_complex.py -v -s
+```
+
+**Run everything and generate a timestamped HTML report (saved inside the `reports/` folder):**
 ```powershell
 pytest --html=report.html
 ```

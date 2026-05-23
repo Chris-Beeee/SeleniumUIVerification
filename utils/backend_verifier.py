@@ -26,7 +26,7 @@ def verify_scraped_against_backend(scraped_titles: list[str], backend_titles: li
     :return: True if verification passes, otherwise raises AssertionError.
     """
     print("\n" + "=" * 60)
-    print(" BACKEND VERIFICATION REPORT (OPTION 4)")
+    print(" BACKEND VERIFICATION REPORT")
     print("=" * 60)
     print(f"Scraped from UI: {len(scraped_titles)} titles")
     print(f"Retrieved from API Backend: {len(backend_titles)} titles")
