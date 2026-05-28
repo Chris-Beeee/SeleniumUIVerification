@@ -46,13 +46,43 @@ def is_mock_mode(request):
 def pytest_runtest_makereport(item, call):
     """
     Hook to explicitly inject our custom execution summaries directly into the HTML report
-    so they appear even if standard output capturing is disabled (like when using -s).
+    and capture screenshots/page source on failure.
     """
     outcome = yield
     report = outcome.get_result()
     extras = getattr(report, "extras", [])
     
     if report.when == "call":
+        # Capture debug artifacts on failure
+        if report.failed:
+            driver = getattr(item, "driver", None)
+            if driver:
+                import os
+                from datetime import datetime
+                try:
+                    from pytest_html import extras as html_extras
+                    os.makedirs("reports/screenshots", exist_ok=True)
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                    screenshot_name = f"fail_{timestamp}.png"
+                    source_name = f"fail_{timestamp}.html"
+                    
+                    screenshot_path = os.path.join("reports", "screenshots", screenshot_name)
+                    source_path = os.path.join("reports", "screenshots", source_name)
+                    
+                    driver.save_screenshot(screenshot_path)
+                    # Embed screenshot into the report
+                    extras.append(html_extras.image(f"screenshots/{screenshot_name}"))
+                    
+                    # Save page source
+                    with open(source_path, "w", encoding="utf-8") as f:
+                        f.write(driver.page_source)
+                    # Embed link to page source
+                    source_link = f"<div style='margin-top: 10px;'><a href='screenshots/{source_name}' target='_blank'>View DOM Page Source at Failure</a></div>"
+                    extras.append(html_extras.html(source_link))
+                except Exception as e:
+                    print(f"Failed to capture debug artifacts: {e}")
+
+        # Inject execution summaries
         if hasattr(report, 'user_properties'):
             messages = []
             for name, value in report.user_properties:
@@ -64,8 +94,6 @@ def pytest_runtest_makereport(item, call):
                     from pytest_html import extras as html_extras
                     summary_text = "\n".join(messages)
                     
-                    # In pytest-html v4, extras.text() generates a data URI link which can fail to open.
-                    # Instead, we inject it directly as an inline HTML block!
                     html_block = (
                         "<div style='background-color: #f1f8ff; padding: 10px; "
                         "border: 1px solid #c8e1ff; border-radius: 5px; margin-bottom: 10px;'>"
@@ -73,7 +101,6 @@ def pytest_runtest_makereport(item, call):
                         f"<pre style='margin-top: 5px; margin-bottom: 0px;'>{summary_text}</pre>"
                         "</div>"
                     )
-                    # extras.html() does not accept a 'name' parameter in the newer versions of pytest-html
                     extras.append(html_extras.html(html_block))
                 except ImportError:
                     pass

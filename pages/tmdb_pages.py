@@ -265,6 +265,13 @@ class TMDBDiscoverPage(BasePage):
         time.sleep(2) # Wait for movie grid to refresh via AJAX
 
     def get_movie_titles(self):
-        self.wait_for_presence(*self.MOVIE_TITLES)
+        try:
+            self.wait_for_presence(*self.MOVIE_TITLES)
+        except TimeoutException:
+            return []
+            
+        import os
+        username = os.getenv("TMDB_USERNAME", "")
+        
         elements = self.driver.find_elements(*self.MOVIE_TITLES)
-        return [el.text.strip() for el in elements if el.text.strip()]
+        return [el.text.strip() for el in elements if el.text.strip() and el.text.strip().lower() != username.lower()]
